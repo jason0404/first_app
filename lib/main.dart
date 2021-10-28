@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_complete_guide/providers/cart.dart';
+import 'package:flutter_complete_guide/providers/orders.dart';
 import 'package:flutter_complete_guide/screens/cart_screen.dart';
 import 'package:flutter_complete_guide/screens/product_detail_screen.dart';
 import '../screens/products_overview_screen.dart';
@@ -20,12 +21,17 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (ctx) => Cart(),
         ),
+        ChangeNotifierProvider(
+          create: (ctx) => Orders(),
+        )
       ],
       child: MaterialApp(
         title: 'MyShop',
         theme: ThemeData(
-          primarySwatch: Colors.purple,
-          accentColor: Colors.deepOrange,
+          colorScheme:
+              ColorScheme.fromSwatch(primarySwatch: Colors.purple).copyWith(
+            secondary: Colors.deepOrange,
+          ),
         ),
         home: ProductsOverviewScreen(),
         routes: {
