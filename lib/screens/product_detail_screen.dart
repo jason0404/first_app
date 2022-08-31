@@ -18,7 +18,7 @@ class ProductDetailScreen extends StatelessWidget {
     ).findById(productId);
     return Scaffold(
       appBar: AppBar(
-        title: Text(product.title),
+        title: Text(product?.title ?? ''),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -27,7 +27,7 @@ class ProductDetailScreen extends StatelessWidget {
               height: 300,
               width: double.infinity,
               child: Image.network(
-                product.imageUrl,
+                product?.imageUrl ?? '',
                 fit: BoxFit.cover,
                 filterQuality: FilterQuality.high,
                 colorBlendMode: BlendMode.difference,
@@ -38,7 +38,7 @@ class ProductDetailScreen extends StatelessWidget {
               height: 10,
             ),
             Text(
-              '\$${product.price}',
+              '\$${product?.price}',
               style: TextStyle(
                 color: Colors.grey,
                 fontSize: 20,
@@ -51,7 +51,7 @@ class ProductDetailScreen extends StatelessWidget {
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 10),
               child: Text(
-                product.description,
+                product?.description ?? '',
                 textAlign: TextAlign.center,
                 softWrap: true,
               ),

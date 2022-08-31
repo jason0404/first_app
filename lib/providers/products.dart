@@ -1,6 +1,8 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:convert' as json;
 
-import 'product.dart';
+import 'package:flutter/cupertino.dart';
+import './product.dart';
+import 'package:http/http.dart' as http;
 
 class Products with ChangeNotifier {
   final List<Product> _items = [
@@ -11,6 +13,7 @@ class Products with ChangeNotifier {
       price: 29.99,
       imageUrl:
           'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
+      isFavorite: false,
     ),
     Product(
       id: 'p2',
@@ -19,6 +22,7 @@ class Products with ChangeNotifier {
       price: 59.99,
       imageUrl:
           'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Trousers%2C_dress_%28AM_1960.022-8%29.jpg/512px-Trousers%2C_dress_%28AM_1960.022-8%29.jpg',
+      isFavorite: false,
     ),
     Product(
       id: 'p3',
@@ -27,6 +31,7 @@ class Products with ChangeNotifier {
       price: 19.99,
       imageUrl:
           'https://live.staticflickr.com/4043/4438260868_cc79b3369d_z.jpg',
+      isFavorite: false,
     ),
     Product(
       id: 'p4',
@@ -35,6 +40,7 @@ class Products with ChangeNotifier {
       price: 49.99,
       imageUrl:
           'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
+      isFavorite: false,
     ),
   ];
 
@@ -48,7 +54,7 @@ class Products with ChangeNotifier {
   }
 
   List<Product> get favouriteItems {
-    return _items.where((element) => element.isFavorite).toList();
+    return _items.where((element) => element.isFavorite ?? false).toList();
   }
 
   // void showFavouritesOnly() {
@@ -61,12 +67,60 @@ class Products with ChangeNotifier {
   //   notifyListeners();
   // }
 
-  Product findById(String id) {
-    return _items.singleWhere((element) => element.id == id);
+  Product? findById(String? id) {
+    var item = Product(
+        id: null,
+        title: '',
+        description: '',
+        price: 0,
+        imageUrl: '',
+        isFavorite: false);
+    if (id == "null" || id == null) {
+      return item;
+    } else {
+      return _items.singleWhere((element) => element.id == id);
+    }
   }
 
-  void addProduct() {
-    // _items.add(value);
+  Future<void> addProduct(Product product) {
+    const url =
+        "https://ng-course-recipe-book-20e5f-default-rtdb.firebaseio.com/products.json";
+    return http
+        .post(Uri.parse(url),
+            body: json.jsonEncode({
+              'id': DateTime.now().toIso8601String(),
+              'title': product.title,
+              'desc': product.description,
+              'imgUrl': product.imageUrl,
+              'price': product.price,
+              'isFav': product.isFavorite
+            }))
+        .then((response) {
+      print("Im here");
+      final newProduct = Product(
+          id: json.jsonDecode(response.body)["name"],
+          title: product.title,
+          description: product.description,
+          price: product.price,
+          imageUrl: product.imageUrl,
+          isFavorite: product.isFavorite);
+      _items.add(newProduct);
+      notifyListeners();
+    });
+  }
+
+  void updateProduct(String id, Product newProduct) {
+    final prodIndex = _items.indexWhere((element) => id == element.id);
+    if (prodIndex >= 0) {
+      _items[prodIndex] = newProduct;
+      notifyListeners();
+    } else {
+      return;
+    }
+  }
+
+  void deleteProduct(String id) {
+    _items.removeWhere((element) => element.id == id);
     notifyListeners();
   }
 }
